@@ -3,7 +3,7 @@ import config_data
 import global_game_data
 import pathing
 from graph_data import graph_data
-from scoreboard import Scoreboard
+from scoreboard import Scoreboard, update_scoreboard
 from graph import Graph
 from player_object import Player
 import random
@@ -24,17 +24,24 @@ text_display_area = pyglet.graphics.Group(order=20)
 button_display_area = pyglet.graphics.Group(order=21)
 
 # Set Game Data
-for graph in graph_data:
-    if len(graph) >= 3:
-        global_game_data.target_node.append(random.randint(1, len(graph) - 2))
+global_game_data.target_nodes = []
+for graph_item in graph_data:
+    if len(graph_item) >= 3:
+        global_game_data.target_nodes.append(random.randint(1, len(graph_item) - 2))
     else:
-        global_game_data.target_node.append(0)
+        global_game_data.target_nodes.append(0)
+
+if hasattr(global_game_data, 'target_nodes') and global_game_data.target_nodes:
+    global_game_data.target_node = global_game_data.target_nodes[global_game_data.current_graph_index]
 
 # Define Game Objects
 scoreboard = Scoreboard(main_batch, text_display_area)
-graph = Graph(main_batch)
+global_game_data.scoreboard = scoreboard
+graph_obj= Graph(main_batch)
 for player_index, player in enumerate(config_data.player_data):
     global_game_data.player_objects.append(Player(player, player_index, main_batch, player_layer))
+
+pathing.set_current_graph_paths()
 
 new_graph_button = pyglet.gui.widgets.PushButton(160, 20,
                                                  pressed=pyglet.resource.image('new_graph_pressed.png'),
@@ -49,8 +56,8 @@ quit_button = pyglet.gui.widgets.PushButton(20, 20,
 
 
 def update(change_in_time):
-    scoreboard.update_scoreboard()
-    graph.update_graph()
+    update_scoreboard()
+    graph_obj.update_graph()
     for player_object in global_game_data.player_objects:
         player_object.update(change_in_time)
 
@@ -86,10 +93,13 @@ def change_graph():
     global_game_data.current_graph_index += 1
     if global_game_data.current_graph_index >= len(graph_data):
         global_game_data.current_graph_index = 0
+
+    if hasattr(global_game_data, 'target_nodes') and len(global_game_data.target_nodes) > global_game_data.current_graph_index:
+        global_game_data.target_node = global_game_data.target_nodes[global_game_data.current_graph_index]
     for player_object in global_game_data.player_objects:
         player_object.reset_player()
     global_game_data.current_player_index = 0
-    graph.set_up_graph()
+    graph_obj.set_up_graph()
     pathing.set_current_graph_paths()
 
 

@@ -92,7 +92,7 @@ class Graph:
                                              batch=self.batch, group=self.group4)
             self.graph_points.append(circle_label)
             # Set location for target object
-            if index == global_game_data.target_node[global_game_data.current_graph_index]:
+            if index == global_game_data.target_node:
                 self.target_x = x_coordinate
                 self.target_y = y_coordinate
             # Set location for start object
