@@ -91,10 +91,7 @@ class Player:
             # Go to next object when target is reached
             if self.absolute_x == target_x and self.absolute_y == target_y:
                 self.current_objective += 1
-
-            if self.absolute_x == target_x and self.absolute_y == target_y:
-                self.current_objective += 1
-                self.nodes_visited = min(self.current_objective + 1, len(path))
+                self.nodes_visited = min(self.current_objective, len(path))
 
         self.distance_traveled = self.distance_traveled + math.sqrt(math.pow(last_absolute_x-self.absolute_x, 2) + math.pow(last_absolute_y-self.absolute_y, 2))
         self.sprite.visible = (global_game_data.current_player_index == self.player_index)

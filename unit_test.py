@@ -106,6 +106,17 @@ class TestPathFinding(unittest.TestCase):
         self.assertNotEqual(almost_pi, pi)
         self.assertAlmostEqual(first=almost_pi, second=pi, delta=1e-1)
 
+    def test_extra_graph_edges_are_bidirectional(self):
+        extra_graph = self.orig_graph_data[-1]
+
+        for node, node_data in enumerate(extra_graph):
+            for neighbor in node_data[1]:
+                self.assertIn(
+                    node,
+                    extra_graph[neighbor][1],
+                    f"Edge {node} -> {neighbor} is not bidirectional"
+                )
+
 
 if __name__ == '__main__':
     unittest.main()
