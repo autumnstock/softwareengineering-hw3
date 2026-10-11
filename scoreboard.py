@@ -155,7 +155,7 @@ class Scoreboard:
                     (end_x, end_y)
                 )
 
-                if total_distance < min_distance:
+            if total_distance < min_distance:
                     min_distance = total_distance
                     winning_player_obj = player_object
 

@@ -5,7 +5,7 @@
 
 ### 1. Random Pathing Algorithm
 - Interpretation: A valid path consists of two connected sub-paths concatonated together- 'Start -> Target' and 'Target -> Exit'.
--Loop Prevention and Revisiting: To prevent infinite loops, the random path generator avoids immediate back-tracking and tracks visited nodes per segment. Nodes can be revisited if necessary to reach an otherwise blocked exit or target, but sequential transitions must exist as valid edges in the graph.
+-Loop Prevention and Revisiting: The algorithm uses randomized depth-first exploration. At each node it randomly selects an unvisited neighbor. If it reaches a dead-end, it backtracks and explore another option. Tracking visied nodes prevents infinite loops, while backtracking allows the algoritm to find another route when necessary. Each generated path must begin at a start node, include a target node, end at the exit node and contain only valid edges between consecutive nodes.
 ### 2. Derived Requirement: Additional Statistic
 -User Story: "I want to see another statistic for each player on the scoreboard"
 -Derived Requirement: The scoreboard will display the number of nodes visited by each player during traversal. The Nodes Visited statistic starts at one for the starting node and increases each time the player reaches another node. Repeated vists are counted seperately.
