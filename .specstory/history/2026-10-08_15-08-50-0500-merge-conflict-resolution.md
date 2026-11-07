@@ -13,3 +13,9 @@ Resolve this merge conflict @Branch
 _**User**_
 
 @config_data.py:26-27 test
+
+---
+
+_**User**_
+
+are the issues addressed in this fixed: "Hi Autumn. It seems the auto grader wasn't happy with your EC graph for some reason, I will add back the bonus points. As for grading of the assignment, I didn't count the bug towards the final grade. The autograder was more used to help point me to places in the code that could be wrong. I was able to grade your code manually, so the bug wasn't a big deal. I counted off 15 points for not having a visited set for the DFS. I split up the grading into 30 pts for BFS, 30 for DFS, 15 for the statistic, and 25 for code structure/assertions/etc, so I thought half points for DFS would be fair. If you want to resubmit with a visited set (should be a quick fix), I am happy to add 5 points bringing you to a 95. Please send an email if you decide to do that."

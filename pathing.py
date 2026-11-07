@@ -97,6 +97,7 @@ def get_random_path():
 def _dfs_segment(graph, start, goal):
     """Helper to perform iterative DFS from start to goal."""
     stack = [[start]]
+    visited = set()
 
     while stack:
         path = stack.pop()
@@ -104,11 +105,13 @@ def _dfs_segment(graph, start, goal):
 
         if node == goal:
             return path
+        
+        if node not in visited:
+            visited.add(node)
 
-        neighbors = sorted(graph.get(node, []), reverse=True)
-        for neighbor in neighbors:
-            if neighbor not in path:
-                stack.append(path + [neighbor])
+            for neighbor in sorted(graph.get(node, []), reverse=True):
+                if neighbor not in visited:
+                    stack.append(path + [neighbor])
     return []
 
 def get_dfs_path():
