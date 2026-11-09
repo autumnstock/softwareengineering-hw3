@@ -1,4 +1,4 @@
-# Homework 3 - Graph Traversal Game
+# Homework 5 - Graph Traversal Game
 # Autumn Stock
 
 ## Customer Requirements and Interpretations
@@ -16,3 +16,12 @@
 
 ### 4. Winner Determination
 -Winning player in the player whose valid path from start to target to exit has the shortest total geometric distance, calculated using the coordinates of consecutive nodes. The test player is only eligible if its path includes the target node. 
+
+### 5. Dijkstra's Algorithm
+-Implemented Dijkstra's alogirthm in pathing.py to find shortest weighted path from start to target to exit.  
+
+### Extra Credit 1: Priority Queue with Heapq
+I implemented Dijkstra's algorithm using heapq to manage a min-priority queue. The priority queue stores nodes according to their shortest known distance from the starting node. 
+
+### Extra Credit 2: A* Search Algorithm
+I implemented A* search algorithm as an additional pathfinding player.

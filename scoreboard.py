@@ -11,11 +11,11 @@ class Scoreboard:
     def __init__(self, batch, group):
         self.batch = batch
         self.group = group
-        self.stat_height = 32
+        self.stat_height = 22
         self.stat_width = 400
         self.number_of_stats = 6
         self.base_height_offset = 20
-        self.font_size = 16
+        self.font_size = 13
         self.distance_to_exit_label = pyglet.text.Label('Direct Distance To Exit : 0', x=0, y=0,
                                                         font_name='Arial', font_size=self.font_size, batch=batch, group=group)
         self.distance_to_exit = 0

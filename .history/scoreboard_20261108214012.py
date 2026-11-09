@@ -7,25 +7,19 @@ import graph_data
 
 
 class Scoreboard:
-    player_name_display = []
-    player_traveled_display = []
-    player_excess_distance_display = []
-    player_path_display = []
-    player_nodes_visited_display = []
 
     def __init__(self, batch, group):
         self.batch = batch
         self.group = group
-        self.stat_height = 32
+        self.stat_height = 22
         self.stat_width = 400
         self.number_of_stats = 6
         self.base_height_offset = 20
-        self.font_size = 16
+        self.font_size = 13
         self.distance_to_exit_label = pyglet.text.Label('Direct Distance To Exit : 0', x=0, y=0,
                                                         font_name='Arial', font_size=self.font_size, batch=batch, group=group)
         self.distance_to_exit = 0
 
-        # Resets list to prevent duplication across game reloads
         self.player_name_display = []
         self.player_traveled_display = []
         self.player_excess_distance_display = []
@@ -131,18 +125,39 @@ class Scoreboard:
         winning_player_obj = None
         min_distance = float('inf')
 
+        graph = graph_data.graph_data[global_game_data.current_graph_index]
+
         for player_object in global_game_data.player_objects:
             p_index = player_object.player_index
-            if p_index < len(global_game_data.graph_paths):
-                path = global_game_data.graph_paths[p_index]
-                # test player excluded if target missed
-                if player_object.player_config_data[0] == "Test Player" and global_game_data.target_node not in path:
-                    continue
-                #eligible candidate if path visits target
-                if global_game_data.target_node in path:
-                    if player_object.distance_traveled < min_distance:
-                        min_distance = player_object.distance_traveled
-                        winning_player_obj = player_object
+
+            if p_index >= len(global_game_data.graph_paths):
+                continue
+
+            path = global_game_data.graph_paths[p_index]
+
+            if not path:
+                continue
+            if path[0] != global_game_data.start_node:
+                continue
+            if path[-1] != global_game_data.exit_node:
+                continue
+            if global_game_data.target_node not in path:
+                continue
+
+            total_distance = 0
+
+            for start_node, end_node in zip(path[:-1], path[1:]):
+                start_x, start_y = graph[start_node][0]
+                end_x, end_y = graph[end_node][0]
+
+                total_distance += math.dist(
+                    (start_x, start_y),
+                    (end_x, end_y)
+                )
+
+            if total_distance < min_distance:
+                    min_distance = total_distance
+                    winning_player_obj = player_object
 
         for index, (display_element, player) in enumerate(self.player_name_display):
             base_name = str(index + 1) + " " + player[0]

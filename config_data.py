@@ -9,14 +9,17 @@ player_data = [
     ["Random", "2.png", colors.ORANGE],
     ["DFS", "3.png", colors.PURPLE],
     ["BFS", "4.png", colors.BLUE],
-#    ["Dijkstra", "5.png", colors.GREEN]
+    ["Dijkstra", "5.png", colors.GREEN],
+    ["A*", "6.png", colors.RED]
 ]
 
 PLAYER_NAMES = [
     "Test Player",
     "Random Player",
     "DFS Player",
-    "BFS Player"
+    "BFS Player",
+    "Dijkstra Player",
+    "A* Player"
 
 ]
 

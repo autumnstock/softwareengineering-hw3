@@ -2,6 +2,8 @@ import graph_data
 import global_game_data
 import random
 import heapq
+import math
+from collections import deque
 
 
 def _adjacency_graph(raw_graph):
@@ -31,6 +33,15 @@ def set_current_graph_paths():
     global_game_data.graph_paths.append(get_bfs_path())
     global_game_data.graph_paths.append(get_dijkstra_path())
 
+def _edge_distance(u, v):
+    """Calculate Euclidean distance between two connected nodes."""
+    raw = graph_data.graph_data[global_game_data.current_graph_index]
+
+    x1, y1 = raw[u][0]
+    x2, y2 = raw[v][0]
+
+    return math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
+
 
 def get_test_path():
     return graph_data.test_path[global_game_data.current_graph_index]
@@ -58,23 +69,37 @@ def get_random_path():
     assert target in graph, "Target node must be in graph"
     assert exit_node in graph, "Exit node must be in graph"
 
-    def random_walk(start_pt, end_pt, max_steps=1000):
+    def random_walk(start_pt, end_pt):
         current = start_pt
         segment = [current]
-        steps = 0
-        while current != end_pt and steps < max_steps:
-            neighbors = graph.get(current, [])
-            if not neighbors:
-                break
-            current = random.choice(neighbors)
-            segment.append(current)
-            steps += 1
+        visited = {current}
+        while current != end_pt:
+            neighbors = [
+                node for node in graph[current]
+                if node not in visited
+            ]
+
+            if neighbors:
+                next_node = random.choice(neighbors)
+                segment.append(next_node)
+                visited.add(next_node)
+                current = next_node
+            else:
+                if len(segment) == 1:
+                    raise ValueError("No path to destination")
+                
+                segment.pop()
+                current = segment[-1]
+        
         return segment
 
     path1 = random_walk(start, target)
     path2 = random_walk(target, exit_node)
-
     full_path = path1 + path2[1:]
+
+    assert full_path[0] == start, "Path must begin at start"
+    assert path1[-1] == target, "First segment must reach target"
+    assert path2[-1] == exit_node, "Second segment must reach exit"
 
     assert_path_postconditions(graph, full_path, target, exit_node)
     return full_path
@@ -82,6 +107,7 @@ def get_random_path():
 def _dfs_segment(graph, start, goal):
     """Helper to perform iterative DFS from start to goal."""
     stack = [[start]]
+    visited = set()
 
     while stack:
         path = stack.pop()
@@ -89,11 +115,13 @@ def _dfs_segment(graph, start, goal):
 
         if node == goal:
             return path
+        
+        if node not in visited:
+            visited.add(node)
 
-        neighbors = sorted(graph.get(node, []), reverse=True)
-        for neighbor in neighbors:
-            if neighbor not in path:
-                stack.append(path + [neighbor])
+            for neighbor in sorted(graph.get(node, []), reverse=True):
+                if neighbor not in visited:
+                    stack.append(path + [neighbor])
     return []
 
 def get_dfs_path():
@@ -107,16 +135,23 @@ def get_dfs_path():
 
     full_path = segment1 + segment2[1:]
 
+    assert segment1, "No path from start to target"
+    assert segment2, "No path from target to exit"
+    assert full_path[0] == start
+
     assert_path_postconditions(graph, full_path, target, exit_node)
     return full_path
 
+
+
+
 def _bfs_segment(graph, start, goal):
     """Helper to perform BFS from start to goal"""
-    queue = [[start]]
+    queue = deque([[start]])
     visited = {start}
 
     while queue:
-        path = queue.pop(0)
+        path = queue.popleft()
         node = path[-1]
 
         if node == goal:
@@ -140,41 +175,85 @@ def get_bfs_path():
 
     full_path = segment1 + segment2[1:]
 
+    assert segment1, "No path from start to target"
+    assert segment2, "No path from target to exit"
+    assert full_path[0] == start
+
     assert_path_postconditions(graph, full_path, target, exit_node)
     return full_path
     
 def _dijkstra_segment(graph, start, goal):
     """Helper to perform Dijkstra's search from start to goal"""
-    pq = [(0, [start])]
+    
+    # Priority queue stores (distance, node)
+    pq = [(0, start)]
+
+    # Track shortest known distance to each node
     distances = {start: 0}
+    
+    # Track parent nodes to recontruct shortest path
+    parents = {start: None}
 
     while pq:
-        current_cost, path = heapq.heappop(pq)
-        node = path[-1]
-
-        if node == goal:
-            return path
-        if current_cost > distances.get(node, float('inf')):
+        current_cost, node = heapq.heappop(pq)
+        if current_cost > distances[node]:
             continue
+        if node == goal:
+            break
         for neighbor in graph.get(node, []):
-            new_cost = current_cost + 1
-            if new_cost < distances.get(neighbor, float('inf')):
-                distances[neighbor] = new_cost
-                heapq.heappush(pq, (new_cost, path + [neighbor]))
+            edge_cost = _edge_distance(node, neighbor)
+            new_cost = current_cost + edge_cost
 
-    return []
+            if new_cost < distances.get(neighbor, float("inf")):
+                distances[neighbor] = new_cost
+                parents[neighbor] = node
+
+                heapq.heappush(pq, (new_cost, neighbor))
+
+    if goal not in distances:
+        return []
+
+    path = []
+    current = goal
+
+    while current is not None:
+        path.append(current)
+        current = parents[current]
+
+    path.reverse()
+
+    return path
 
 
 def get_dijkstra_path():
+    """Find shortest path from Start to Target to Exit"""
+
     graph = _current_adjacency_graph()
+
     start = global_game_data.start_node
     target = global_game_data.target_node
     exit_node = global_game_data.exit_node
 
+    # Shortest path from Start to Target
     segment1 = _dijkstra_segment(graph, start, target)
+
+    # Shortest path from Target to Exit
     segment2 = _dijkstra_segment(graph, target, exit_node)
+
+    assert segment1, "No path from start to target"
+    assert segment2, "No path from target to exit"
 
     full_path = segment1 + segment2[1:]
 
-    assert_path_postconditions(graph, full_path, target, exit_node)
+    # Postconditions
+    assert full_path[0] == start, "Path must begin at Start"
+    assert target in full_path, "Path must contain Target"
+    assert full_path[-1] == exit_node, "Path must end at Exit"
+
+    for u, v in zip(full_path[:-1], full_path[1:]):
+        assert v in graph.get(u, []), (
+            f"No edge between nodes {u} and {v}"
+        )
+
     return full_path
+
